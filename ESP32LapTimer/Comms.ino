@@ -51,6 +51,7 @@
 #define CONTROL_GET_TIME            't'
 #define CONTROL_GET_VOLTAGE         'v'
 #define CONTROL_GET_IS_CONFIGURED   'y'
+#define CONTROL_GET_RESTART         'Z'
 
 // output id byte constants
 #define RESPONSE_WAIT_FIRST_LAP      '1'
@@ -675,6 +676,10 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
   if (controlData[2] == CONTROL_GET_TIME) {
     //Serial.println("Sending Time.....");
     SendMillis();
+  }
+
+  if (controlData[0] == CONTROL_GET_RESTART) {
+    ESP.restart();
   }
 
 
