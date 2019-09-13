@@ -1,4 +1,6 @@
-#pragma once
+#ifndef __BLUETOOTH_H__
+#define __BLUETOOTH_H__
+
 
 #include "BluetoothSerial.h"
 
@@ -6,12 +8,8 @@
 #error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
 #endif
 
-char BluetootBuffIn[255];
-int BluetootBuffInPointer = 0;
+void bluetooth_update(void* output);
+void bluetooth_send_packet(void* output, uint8_t* buf, uint32_t size);
+void bluetooth_init(void* output);
 
-char BluetootBufftoProcess[255];
-
-char BluetoothBuffOut[255];
-int BluetoothBuffOutPointer=0;
-
-BluetoothSerial SerialBT;
+#endif // __BLUETOOTH_H__

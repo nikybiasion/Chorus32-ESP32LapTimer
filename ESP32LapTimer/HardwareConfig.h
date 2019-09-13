@@ -1,86 +1,44 @@
 #pragma once
-void InitHardwarePins();
 
-///Define Pin configuration here, these are the defaults as given on github
+/// These are all the available targets
+#define BOARD_DEFAULT 1
+#define BOARD_OLD 2
+#define BOARD_TTGO_LORA 3
 
-#define Default_Pins        // Use for all new hardware and PCBs
-//#define Old_Default_Pins
+///Define the board used here
+///For jye's PCB v2.x the value doesn't need to be changed
+///If you are using v1 of jye's PCB or used the wiring diagram you'll need to change this to "BOARD_OLD"
+///To define your own custom board take a look at the "targets" directory
+#define BOARD BOARD_DEFAULT
 
+/// If your setup doesn't use an OLED remove or comment the following line
+#define OLED
 
-// DO NOT CHANGE BELOW UNLESS USING CUSTOM HARDWARE
+///  Sets the WiFi acces point name
+#define WIFI_AP_NAME "Chorus32 LapTimer"
+#define BLUETOOTH_NAME WIFI_AP_NAME
 
-#define EEPROM_VERSION_NUMBER 6 // Increment when eeprom struct modified
+/// Enables Bluetooth support. Disabled by default. If you enable it you might need to change the partition scheme to "Huge APP"
+//#define USE_BLUETOOTH
+/// Outputs all messages on the serial port. Used to use Livetime via USB
+#define USE_SERIAL_OUTPUT
 
-#define MaxNumRecievers 6
-byte NumRecievers;
+// Enable TCP support. Currently this needs a special version of the app: https://github.com/Smeat/Chorus-RF-Laptimer/releases/tag/tcp_support
+//#define USE_TCP
 
+// BELOW ARE THE ADVANCED SETTINGS! ONLY CHANGE THEM IF YOU KNOW WHAT YOUR ARE DOING!
+
+#define EEPROM_VERSION_NUMBER 9 // Increment when eeprom struct modified
+#define MaxNumReceivers 6
+#define VOLTAGE_UPDATE_INTERVAL_MS 1000 // interval of the battery voltage reading
 #define MIN_TUNE_TIME 30000 // value in micro seconds
+#define MAX_UDP_CLIENTS 5
+#define MAX_TCP_CLIENTS 5
+#define MAX_LAPS_NUM 100 // Maximum number of supported laps per pilot
+// 800 and 2700 are about average min max raw values
+#define RSSI_ADC_READING_MAX 2700
+#define RSSI_ADC_READING_MIN 800
 
-#define OLED //uncomment this to enable OLED support
+#include "targets/target.h" // Needs to be at the bottom
 
-#ifdef Default_Pins
-  #define BEEPER 14
-  
-  #define LEDs 12
-
-  #define BUTTON1 T7 // 27
-  #define BUTTON2 T4 // 13
-  
-  #define USE_VSPI
-  
-  #define CS1 16
-  #define CS2 5
-  #define CS3 4
-  #define CS4 15
-  #define CS5 25
-  #define CS6 26
-  
-  #define ADC1 ADC1_CHANNEL_0
-  #define ADC2 ADC1_CHANNEL_3
-  #define ADC3 ADC1_CHANNEL_6
-  #define ADC4 ADC1_CHANNEL_7
-  #define ADC5 ADC1_CHANNEL_4
-  #define ADC6 ADC1_CHANNEL_5
-  
-  #define ADC1_GPIO 36
-  #define ADC2_GPIO 39
-  #define ADC3_GPIO 34
-  #define ADC4_GPIO 35
-  #define ADC5_GPIO 32
-  #define ADC6_GPIO 33
-#endif
-
-#ifdef Old_Default_Pins
-  #define BEEPER 23
-  
-  #define LEDs 17
-
-  #define BUTTON1 T7 // 27
-  #define BUTTON2 T4 // 13
-  
-  #define USE_HSPI
-  
-  #define SCK 14
-  #define MOSI 12
-  
-  #define CS1 16
-  #define CS2 5
-  #define CS3 4
-  #define CS4 15
-  #define CS5 25
-  #define CS6 26
-
-  #define ADC1 ADC1_CHANNEL_0
-  #define ADC2 ADC1_CHANNEL_6
-  #define ADC3 ADC1_CHANNEL_7
-  #define ADC4 ADC1_CHANNEL_3
-  #define ADC5 ADC1_CHANNEL_4
-  #define ADC6 ADC1_CHANNEL_5
-  
-  #define ADC1_GPIO 36
-  #define ADC2_GPIO 34
-  #define ADC3_GPIO 35
-  #define ADC4_GPIO 39
-  #define ADC5_GPIO 32
-  #define ADC6_GPIO 33
-#endif
+void InitHardwarePins();

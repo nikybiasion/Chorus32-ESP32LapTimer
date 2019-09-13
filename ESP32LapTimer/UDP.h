@@ -1,14 +1,13 @@
-#pragma once
+#ifndef __UDP_H__
+#define __UDP_H__
 
+#include "Output.h"
 
-void IRAM_ATTR addToSendQueue(uint8_t item);
-void IRAM_ATTR addToSendQueue(uint8_t * buff, uint8_t length);
+#include <Arduino.h>
+#include <stdint.h>
 
-char packetBuffer[1500];
-char UDPin[1500];
+void IRAM_ATTR udp_send_packet(void* output, uint8_t* buf, uint32_t size);
+void udp_init(void* output);
+void IRAM_ATTR udp_update(void* output);
 
-uint8_t UDPoutQue[1500];
-int UDPoutQuePtr = 0; //Keep track of where we are in the Que
-
-bool MirrorToSerial = true;
-void IRAM_ATTR SendUDPpacket();
+#endif // __UDP_H__

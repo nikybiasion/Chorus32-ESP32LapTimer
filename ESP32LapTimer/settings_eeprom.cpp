@@ -1,19 +1,12 @@
 #include <EEPROM.h>
 #include "settings_eeprom.h"
 #include "Comms.h"
+#include "RX5808.h"
+#include "crc.h"
 
 struct EepromSettingsStruct EepromSettings;
 
-
-///////////Extern Variable we need acces too///////////////////////
-
-extern RXADCfilter_ RXADCfilter;
-extern ADCVBATmode_ ADCVBATmode;
-
-extern byte NumRecievers;
-extern float VBATcalibration;
-
-//////////////////////////////////////////////////////////////////
+static bool eepromSaveRequired = false;
 
 void EepromSettingsStruct::setup() {
   EEPROM.begin(512);
@@ -24,8 +17,8 @@ void EepromSettingsStruct::load() {
   EEPROM.get(0, *this);
   Serial.println("EEPROM LOADED");
 
-  Serial.println(EepromSettings.NumRecievers);
-  Serial.println(NumRecievers);
+  Serial.println(EepromSettings.NumReceivers);
+  Serial.println(NumReceivers);
 
   if (this->eepromVersionNumber != EEPROM_VERSION_NUMBER) {
     this->defaults();
@@ -37,10 +30,10 @@ bool EepromSettingsStruct::SanityCheck() {
 
   bool IsGoodEEPROM = true;
 
-  if (EepromSettings.NumRecievers > MaxNumRecievers) {
+  if (EepromSettings.NumReceivers > MaxNumReceivers) {
     IsGoodEEPROM = false;
     Serial.print("Error: Corrupted EEPROM value NumRecievers: ");
-    Serial.println(EepromSettings.NumRecievers);
+    Serial.println(EepromSettings.NumReceivers);
     return IsGoodEEPROM;
   }
 
@@ -66,7 +59,7 @@ bool EepromSettingsStruct::SanityCheck() {
     return IsGoodEEPROM;
   }
 
-  for (int i = 0; i < EepromSettings.NumRecievers; i++) {
+  for (int i = 0; i < EepromSettings.NumReceivers; i++) {
     if (EepromSettings.RXBand[i] > MaxBand) {
       IsGoodEEPROM = false;
       Serial.print("Error: Corrupted EEPROM NODE: ");
@@ -78,7 +71,7 @@ bool EepromSettingsStruct::SanityCheck() {
 
   }
 
-  for (int i = 0; i < EepromSettings.NumRecievers; i++) {
+  for (int i = 0; i < EepromSettings.NumReceivers; i++) {
     if (EepromSettings.RXChannel[i] > MaxChannel) {
       IsGoodEEPROM = false;
       Serial.print("Error: Corrupted EEPROM NODE: ");
@@ -89,7 +82,7 @@ bool EepromSettingsStruct::SanityCheck() {
     }
   }
 
-  for (int i = 0; i < EepromSettings.NumRecievers; i++) {
+  for (int i = 0; i < EepromSettings.NumReceivers; i++) {
     if ((EepromSettings.RXfrequencies[i] > MaxFreq) or (EepromSettings.RXfrequencies[i] < MinFreq)) {
       IsGoodEEPROM = false;
       Serial.print("Error: Corrupted EEPROM NODE: ");
@@ -100,7 +93,7 @@ bool EepromSettingsStruct::SanityCheck() {
     }
   }
 
-  for (int i = 0; i < EepromSettings.NumRecievers; i++) {
+  for (int i = 0; i < EepromSettings.NumReceivers; i++) {
     if (EepromSettings.RSSIthresholds[i] > MaxThreshold) {
       IsGoodEEPROM = false;
       Serial.print("Error: Corrupted EEPROM NODE: ");
@@ -110,20 +103,95 @@ bool EepromSettingsStruct::SanityCheck() {
       return IsGoodEEPROM;
     }
   }
-  return IsGoodEEPROM;
+  return IsGoodEEPROM && this->validateCRC();
 }
 
 void EepromSettingsStruct::save() {
-  if (eepromSaveRquired) {
+  if (eepromSaveRequired) {
+    this->updateCRC();
     EEPROM.put(0, *this);
     EEPROM.commit();
-    eepromSaveRquired = false;
+    eepromSaveRequired = false;
     Serial.println("EEPROM SAVED");
   }
 }
 
 void EepromSettingsStruct::defaults() {
-  memcpy_P(this, &EepromDefaults, sizeof(EepromDefaults));
+  // We are using a temporary struct since we might have invalid values during setup and core 0 might use them
+  EepromSettingsStruct settings;
+  // by setting everything to 0 we guarantee that every variable is initialized
+  memset(&settings, 0, sizeof(EepromSettingsStruct));
+  for(uint8_t i = 0; i < MaxNumReceivers; ++i){
+    settings.RxCalibrationMax[i] = RSSI_ADC_READING_MAX;
+    settings.RxCalibrationMin[i] = RSSI_ADC_READING_MIN;
+    settings.RSSIthresholds[i] = 2048;
+    settings.RXBand[i] = 0;
+    settings.RXChannel[i] = i % 8;
+    settings.RXfrequencies[i] = getFrequencyFromBandChannel(settings.RXBand[i], settings.RXChannel[i]);
+  }
+
+  settings.eepromVersionNumber = EEPROM_VERSION_NUMBER;
+  settings.ADCVBATmode = INA219;
+  settings.RXADCfilter = LPF_20Hz;
+  settings.VBATcalibration = 1;
+  settings.NumReceivers = 6;
+  settings.WiFiProtocol = 1;
+  settings.WiFiChannel = 1;
+
+  settings.updateCRC();
+
+  *this = settings;
+
   EEPROM.put(0, *this);
   EEPROM.commit();
+}
+
+crc_t EepromSettingsStruct::calcCRC() {
+  crc_t crc = crc_init();
+  crc = crc_update(crc, this, sizeof(*this) - sizeof(this->crc));
+  crc = crc_finalize(crc);
+  return crc;
+}
+
+void EepromSettingsStruct::updateCRC() {
+  this->crc = this->calcCRC();
+}
+
+bool EepromSettingsStruct::validateCRC(){
+  return this->crc == this->calcCRC();
+}
+
+RXADCfilter_ getRXADCfilter() {
+  return EepromSettings.RXADCfilter;
+}
+
+ADCVBATmode_ getADCVBATmode() {
+  return EepromSettings.ADCVBATmode;
+}
+
+void setRXADCfilter(RXADCfilter_ filter) {
+  EepromSettings.RXADCfilter = filter;
+}
+
+void setADCVBATmode(ADCVBATmode_ mode) {
+  EepromSettings.ADCVBATmode = mode;
+}
+
+void setSaveRequired() {
+  eepromSaveRequired = true;
+}
+
+int getWiFiChannel(){
+  return EepromSettings.WiFiChannel;
+}
+int getWiFiProtocol(){
+  return EepromSettings.WiFiProtocol;
+}
+
+uint8_t getNumReceivers() {
+  return EepromSettings.NumReceivers;
+}
+
+uint32_t getDisplayTimeout() {
+  return EepromSettings.display_timeout_ms;
 }
