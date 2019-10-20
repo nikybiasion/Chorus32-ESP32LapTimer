@@ -411,11 +411,9 @@ void IRAM_ATTR sendLap(uint8_t Lap, uint8_t NodeAddr) {
 }
 
 void SendNumberOfnodes(byte NodeAddr) {
-  for (int i = NodeAddr + 1; i <= getNumReceivers() + NodeAddr; i++) {
     addToSendQueue('N');
-    addToSendQueue(TO_HEX(i));
+    addToSendQueue(TO_HEX(getNumReceivers()));
     addToSendQueue('\n');
-  }
 }
 
 void IRAM_ATTR SendAllLaps(uint8_t NodeAddr) {
