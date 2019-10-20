@@ -190,14 +190,12 @@ void SendMinLap(uint8_t NodeAddr) {
   isConfigured = 1;
 }
 
-void SendIsModuleConfigured() {
-  for (int i = 0; i < getNumReceivers(); i ++) {
+void SendIsModuleConfigured(uint8_t NodeAddr) {
     addToSendQueue('S');
-    addToSendQueue(TO_HEX(i));
+    addToSendQueue(TO_HEX(NodeAddr));
     addToSendQueue(RESPONSE_IS_CONFIGURED);
     addToSendQueue(TO_HEX(isConfigured));
     addToSendQueue('\n');
-  }
 }
 
 void SendXdone(uint8_t NodeAddr) {
@@ -209,11 +207,11 @@ void SendXdone(uint8_t NodeAddr) {
 }
 
 void SetThresholdValue(uint16_t threshold, uint8_t NodeAddr) {
-  Serial.print("Setting Threshold Value: ");
-  Serial.println(threshold);
+  //Serial.print("Setting Threshold Value: ");
+  //Serial.println(threshold);
   if (threshold > 340) {
     threshold = 340;
-    Serial.println("Threshold was attempted to be set out of range");
+    //Serial.println("Threshold was attempted to be set out of range");
   }
   // stop the "setting threshold algorithm" to avoid overwriting the explicitly set value
   if (thresholdSetupMode[NodeAddr]) {
@@ -526,18 +524,18 @@ void SendVRxFreq(uint8_t NodeAddr) {
   addToSendQueue('\n');
 }
 
-void sendAPIversion() {
+void sendAPIversion(uint8_t NodeAddr) {
 
-  for (int i = 0; i < getNumReceivers(); i++) {
+ // for (int i = 0; i < getNumReceivers(); i++) {
     addToSendQueue('S');
-    addToSendQueue(TO_HEX(i));
+    addToSendQueue(TO_HEX(NodeAddr));
     addToSendQueue(RESPONSE_API_VERSION);
     addToSendQueue('0');
     addToSendQueue('0');
     addToSendQueue('0');
     addToSendQueue('4');
     addToSendQueue('\n');
-  }
+//  }
 }
 
 void SendAllSettings(uint8_t NodeAddr) {
@@ -583,12 +581,12 @@ void SendAllSettings(uint8_t NodeAddr) {
   SendSoundMode(NodeAddr);
   SendVRxBand(NodeAddr);
   WaitFirstLap(NodeAddr);
-  SendIsModuleConfigured();
+  SendIsModuleConfigured(NodeAddr);
   SendVRxFreq(NodeAddr);
   SendRSSImonitorInterval(NodeAddr);
   SendTimerCalibration(NodeAddr);
   SendAllLaps(NodeAddr);
-  sendAPIversion();
+  sendAPIversion(NodeAddr);
   sendThresholdMode(NodeAddr);
   SendXdone(NodeAddr);
 
@@ -790,7 +788,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         break;
       case CONTROL_GET_API_VERSION: //get API version
         //for (int i = 0; i < getNumReceivers(); i++) {
-        sendAPIversion();
+        sendAPIversion(NodeAddrByte);
         //}
         break;
       case CONTROL_TIME_ADJUSTMENT:
@@ -800,7 +798,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         sendThresholdMode(NodeAddrByte);
         break;
       case CONTROL_GET_IS_CONFIGURED:
-        SendIsModuleConfigured();
+        SendIsModuleConfigured(NodeAddrByte);
         break;
     }
   }

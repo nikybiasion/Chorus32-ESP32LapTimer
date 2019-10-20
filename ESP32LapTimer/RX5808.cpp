@@ -144,10 +144,10 @@ uint16_t getSynthRegisterBFreq(uint16_t f) {
 
 
 void setChannel(uint8_t channel, uint8_t NodeAddr) {
-  Serial.println(channel);
+  //Serial.println(channel);
 
   if (channel <= 7) {
-    Serial.println("setChannel");
+    //Serial.println("setChannel");
     RXChannel[NodeAddr] = channel;
     uint8_t band = RXBand[NodeAddr];
     uint16_t SetFreq = setModuleChannelBand(channel, band, NodeAddr);
@@ -156,10 +156,10 @@ void setChannel(uint8_t channel, uint8_t NodeAddr) {
 }
 
 void setBand(uint8_t band, uint8_t NodeAddr) {
-  Serial.println(band);
+  //Serial.println(band);
 
   if (band <= MAX_BAND) {
-    Serial.println("setBand");
+    //Serial.println("setBand");
     RXBand[NodeAddr] = band;
     uint8_t channel = RXChannel[NodeAddr];
     uint16_t SetFreq = setModuleChannelBand(channel, band, NodeAddr);
@@ -168,25 +168,25 @@ void setBand(uint8_t band, uint8_t NodeAddr) {
 }
 
 uint16_t setModuleChannelBand(uint8_t NodeAddr) {
-  Serial.println("setModuleChannelBand");
+  /*Serial.println("setModuleChannelBand");
   Serial.print(RXChannel[NodeAddr]);
   Serial.print(",");
-  Serial.println(RXBand[NodeAddr]);
+  Serial.println(RXBand[NodeAddr]);*/
 
   uint8_t index = RXChannel[NodeAddr] + (8 * RXBand[NodeAddr]);
-  Serial.println(index);
+  //Serial.println(index);
   uint16_t frequency = channelFreqTable[index];
   return setModuleFrequency(frequency, NodeAddr);
 }
 
 uint16_t setModuleChannelBand(uint8_t channel, uint8_t band, uint8_t NodeAddr) {
-  Serial.println("setModuleChannelBand");
+  /*Serial.println("setModuleChannelBand");
   Serial.print(channel);
   Serial.print(",");
-  Serial.println(band);
+  Serial.println(band);*/
   
   uint8_t index = channel + (8 * band);
-  Serial.println(index);
+  //Serial.println(index);
   uint16_t frequency = channelFreqTable[index];
   RXBand[NodeAddr] = band;
   RXChannel[NodeAddr] = channel;
