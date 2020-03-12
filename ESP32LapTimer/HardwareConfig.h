@@ -14,17 +14,9 @@
 /// If your setup doesn't use an OLED remove or comment the following line
 #define OLED
 
-///  Sets the WiFi acces point name
-#define WIFI_AP_NAME "Chorus32 LapTimer"
-#define BLUETOOTH_NAME WIFI_AP_NAME
+#define USE_BUTTONS
 
-/// Enables Bluetooth support. Disabled by default. If you enable it you might need to change the partition scheme to "Huge APP"
-//#define USE_BLUETOOTH
-/// Outputs all messages on the serial port. Used to use Livetime via USB
 #define USE_SERIAL_OUTPUT
-
-// Enable TCP support. Currently this needs a special version of the app: https://github.com/Smeat/Chorus-RF-Laptimer/releases/tag/tcp_support
-//#define USE_TCP
 
 // BELOW ARE THE ADVANCED SETTINGS! ONLY CHANGE THEM IF YOU KNOW WHAT YOUR ARE DOING!
 
@@ -32,8 +24,7 @@
 #define MaxNumReceivers 6
 #define VOLTAGE_UPDATE_INTERVAL_MS 1000 // interval of the battery voltage reading
 #define MIN_TUNE_TIME 30000 // value in micro seconds
-#define MAX_UDP_CLIENTS 5
-#define MAX_TCP_CLIENTS 5
+
 #define MAX_LAPS_NUM 100 // Maximum number of supported laps per pilot
 // 800 and 2700 are about average min max raw values
 #define RSSI_ADC_READING_MAX 2700

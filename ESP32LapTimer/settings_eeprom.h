@@ -29,8 +29,6 @@ struct EepromSettingsStruct {
   uint8_t NumReceivers;
   uint16_t RxCalibrationMin[MaxNumReceivers];
   uint16_t RxCalibrationMax[MaxNumReceivers];
-  uint8_t WiFiProtocol; // 0 is b only, 1 is bgn
-  uint8_t WiFiChannel;
   uint32_t display_timeout_ms;
   crc_t crc; // This MUST be the last variable!
 
@@ -52,9 +50,6 @@ ADCVBATmode_ getADCVBATmode();
 
 void setRXADCfilter(RXADCfilter_ filter);
 void setADCVBATmode(ADCVBATmode_ mode);
-
-int getWiFiChannel();
-int getWiFiProtocol();
 
 uint8_t getNumReceivers();
 uint32_t getDisplayTimeout();

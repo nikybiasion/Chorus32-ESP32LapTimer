@@ -1,14 +1,7 @@
 #include "Output.h"
 
 #include "Comms.h"
-#include "UDP.h"
 #include "Serial.h"
-#ifdef USE_BLUETOOTH
-#include "Bluetooth.h"
-#endif
-#ifdef USE_TCP
-#include "TCP.h"
-#endif
 
 #include <freertos/semphr.h>
 
@@ -21,16 +14,9 @@ static SemaphoreHandle_t queue_semaphore = NULL;
 
 // TODO: define this somewhere else!
 static output_t outputs[] = {
-  {NULL, udp_init, udp_send_packet, udp_update, output_input_callback},
 #ifdef USE_SERIAL_OUTPUT
-  {NULL, serial_init, serial_send_packet, serial_update, output_input_callback},
+  {NULL, serial_init, serial_send_packet, serial_update, output_input_callback}
 #endif // USE_SERIAL_OUTPUT
-#ifdef USE_BLUETOOTH
-  {NULL, bluetooth_init, bluetooth_send_packet, bluetooth_update, output_input_callback},
-#endif // USE_BLUETOOTH
-#ifdef USE_TCP
-  {NULL, tcp_init, tcp_send_packet, tcp_update, output_input_callback},
-#endif // USE_TCP
 };
 
 #define OUTPUT_SIZE (sizeof(outputs)/sizeof(outputs[0]))

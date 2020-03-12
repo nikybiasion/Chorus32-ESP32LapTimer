@@ -9,7 +9,6 @@
 #include "settings_eeprom.h"
 #include "RX5808.h"
 #include "Calibration.h"
-#include "WebServer.h"
 #include "Utils.h"
 
 static uint8_t oledRefreshTime = 50;
@@ -37,7 +36,7 @@ oled_page_t oled_pages[] = {
   {NULL, NULL, summary_page_update, next_page_input},
   {NULL, NULL, adc_page_update, next_page_input},
   {NULL, NULL, calib_page_update, calib_page_input},
-  {NULL, NULL, airplane_page_update, airplane_page_input},
+  {NULL, NULL, settings_page_update, settings_page_input},
   {&rxPageData, rx_page_init, rx_page_update, rx_page_input}
 };
 
@@ -222,24 +221,31 @@ void calib_page_input(void* data, uint8_t index, uint8_t type) {
   }
 }
 
-void airplane_page_update(void* data) {
+/*void settings_page_init(void* data) {
+  uint8_t* options = (uint8_t*) data;
+  *options = 0;
+}*/
+
+void settings_page_update(void* data) {
+  //option=(uint8_t)data;
   display.setTextAlignment(TEXT_ALIGN_LEFT);
-  display.drawString(0, 0, "Airplane Mode Settings:");
-  display.drawString(0, 15, "Long Press Button 2 to");
-  display.drawString(0, 26, "toggle Airplane mode.");
-  if (!isAirplaneModeOn()) {
-    display.drawString(0, 42, "Airplane Mode: OFF");
-    display.drawString(0, 51, "WiFi: ON  | Draw: " + String(getMaFloat()/1000, 2) + "A");
-  } else {
-    display.drawString(0, 42, "Airplane Mode: ON");
-    display.drawString(0, 51, "WiFi: OFF  | Draw: " + String(getMaFloat()/1000, 2) + "A");
-  }
+  display.drawString(0, 0, "Frequency - " + String(channelFreqTable[getcalibrationFreqIndex()]) + "Hz");
+  display.drawString(0,  9, "NumReceivers = " + String(EepromSettings.NumReceivers));
+  display.drawString(0,  18, "RXADCfilter = " + String(getRXADCfilter()));
 }
 
-void airplane_page_input(void* data, uint8_t index, uint8_t type) {
-  if(index == 1 && type == BUTTON_LONG) {
-    toggleAirplaneMode();
-  } else {
+void settings_page_input(void* data, uint8_t index, uint8_t type) {
+  //option=(uint8_t)data;
+  if(index == 1){
+    if (type == BUTTON_SHORT) {
+      EepromSettings.NumReceivers=EepromSettings.NumReceivers%6+1;
+    }
+    else{
+      EepromSettings.RXADCfilter=(RXADCfilter_)(((int)EepromSettings.RXADCfilter+1)%4);
+      }
+    setSaveRequired();
+  }
+  else {
     next_page_input(data, index, type);
   }
 }
@@ -277,4 +283,3 @@ void setDisplayScreenNumber(uint16_t num) {
 uint16_t getDisplayScreenNumber() {
   return current_page;
 }
-

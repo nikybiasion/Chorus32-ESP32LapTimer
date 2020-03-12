@@ -64,5 +64,6 @@ void setRXChannel(uint8_t node, uint8_t channel);
 uint8_t getRXChannel(uint8_t node);
 
 uint16_t getFrequencyFromBandChannel(uint8_t band, uint8_t channel);
-
+void PowerDownAll();
+void SelectivePowerUp();
 #endif

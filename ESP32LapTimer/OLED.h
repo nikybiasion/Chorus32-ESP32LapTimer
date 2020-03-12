@@ -30,8 +30,9 @@ void adc_page_update(void* data);
 void calib_page_update(void* data);
 void calib_page_input(void* data, uint8_t index, uint8_t type);
 
-void airplane_page_update(void* data);
-void airplane_page_input(void* data, uint8_t index, uint8_t type);
+void settings_page_update(void* data);
+void settings_page_input(void* data, uint8_t index, uint8_t type);
+
 
 void oledInjectInput(uint8_t index, uint8_t type);
 void next_page_input(void* data, uint8_t index, uint8_t type);
