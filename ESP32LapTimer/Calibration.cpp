@@ -39,7 +39,7 @@ void rssiCalibrationUpdate() {
         EepromSettings.RxCalibrationMax[i] = getRSSI(i);
     }
     calibrationFreqIndex++;
-    if (calibrationFreqIndex < 8*8) { // 8*8 = 8 bands * 8 channels = total number of freq in channelFreqTable.
+    if (calibrationFreqIndex < 8 * 8) { // 8*8 = 8 bands * 8 channels = total number of freq in channelFreqTable.
       setModuleFrequencyAll(channelFreqTable[calibrationFreqIndex]);
       calibrationTimer.reset();
 

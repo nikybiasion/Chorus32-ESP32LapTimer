@@ -14,6 +14,9 @@
 static uint8_t oledRefreshTime = 50;
 static uint32_t last_input_ms = 0;
 static bool display_standby_status = false;
+static int settingIndex = 0;
+String strRXADCfilter[] = {"LPF_10Hz", "LPF_20Hz", "LPF_50Hz", "LPF_100Hz"};
+String strADCVBATmode[] = {"OFF", "ADC_CH5", "ADC_CH6", "INA219"};
 
 static Timer oledTimer = Timer(oledRefreshTime);
 
@@ -229,21 +232,39 @@ void calib_page_input(void* data, uint8_t index, uint8_t type) {
 void settings_page_update(void* data) {
   //option=(uint8_t)data;
   display.setTextAlignment(TEXT_ALIGN_LEFT);
-  display.drawString(0, 0, "Frequency - " + String(channelFreqTable[getcalibrationFreqIndex()]) + "Hz");
-  display.drawString(0,  9, "NumReceivers = " + String(EepromSettings.NumReceivers));
-  display.drawString(0,  18, "RXADCfilter = " + String(getRXADCfilter()));
+  display.setFont(Dialog_plain_9);
+  display.drawString(0, 0, "SETTINGS");
+  if (settingIndex==0) display.setFont(Dialog_bold_9);
+  else display.setFont(Dialog_plain_9);
+  display.drawString(0,  10, "NumReceivers = " + String(EepromSettings.NumReceivers));
+  if (settingIndex==1) display.setFont(Dialog_bold_9);
+  else display.setFont(Dialog_plain_9);
+  display.drawString(0,  20, "RXADCfilter = " + strRXADCfilter[getRXADCfilter()]);
+  if (settingIndex==2) display.setFont(Dialog_bold_9);
+  else display.setFont(Dialog_plain_9);
+  display.drawString(0,  30, "VBATmode = " + strADCVBATmode[getADCVBATmode()]);
 }
 
 void settings_page_input(void* data, uint8_t index, uint8_t type) {
   //option=(uint8_t)data;
   if(index == 1){
     if (type == BUTTON_SHORT) {
-      EepromSettings.NumReceivers=EepromSettings.NumReceivers%6+1;
+      switch (settingIndex){
+        case 0:
+          EepromSettings.NumReceivers=EepromSettings.NumReceivers%6+1;
+          break;
+        case 1:
+          EepromSettings.RXADCfilter=(RXADCfilter_)(((int)EepromSettings.RXADCfilter+1)%4);
+          break;
+        case 2:
+          EepromSettings.ADCVBATmode=(ADCVBATmode_)(((int)EepromSettings.ADCVBATmode+1)%4);
+          break;
+      }
+      setSaveRequired();
     }
     else{
-      EepromSettings.RXADCfilter=(RXADCfilter_)(((int)EepromSettings.RXADCfilter+1)%4);
+      settingIndex=(++settingIndex)%3;
       }
-    setSaveRequired();
   }
   else {
     next_page_input(data, index, type);
