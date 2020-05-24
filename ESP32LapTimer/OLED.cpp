@@ -252,6 +252,9 @@ void settings_page_input(void* data, uint8_t index, uint8_t type) {
       switch (settingIndex){
         case 0:
           EepromSettings.NumReceivers=EepromSettings.NumReceivers%6+1;
+          PowerDownAll();
+          delay(250);
+          SelectivePowerUp();
           break;
         case 1:
           EepromSettings.RXADCfilter=(RXADCfilter_)(((int)EepromSettings.RXADCfilter+1)%4);

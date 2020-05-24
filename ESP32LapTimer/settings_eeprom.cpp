@@ -3,6 +3,7 @@
 #include "Comms.h"
 #include "RX5808.h"
 #include "crc.h"
+#include "debug.h"
 
 struct EepromSettingsStruct EepromSettings;
 
@@ -15,11 +16,11 @@ void EepromSettingsStruct::setup() {
 
 void EepromSettingsStruct::load() {
   EEPROM.get(0, *this);
-  #ifdef DEBUG
+#ifdef DEBUG
   Serial.println("EEPROM LOADED");
   Serial.println(EepromSettings.NumReceivers);
   Serial.println(NumReceivers);
-  #endif
+#endif
 
   if (this->eepromVersionNumber != EEPROM_VERSION_NUMBER) {
     this->defaults();
@@ -33,50 +34,50 @@ bool EepromSettingsStruct::SanityCheck() {
 
   if (EepromSettings.NumReceivers > MaxNumReceivers) {
     IsGoodEEPROM = false;
-    #ifdef DEBUG
+#ifdef DEBUG
     Serial.print("Error: Corrupted EEPROM value NumRecievers: ");
     Serial.println(EepromSettings.NumReceivers);
-    #endif
+#endif
     return IsGoodEEPROM;
   }
 
 
   if (EepromSettings.RXADCfilter > MaxADCFilter) {
     IsGoodEEPROM = false;
-    #ifdef DEBUG
+#ifdef DEBUG
     Serial.print("Error: Corrupted EEPROM value RXADCfilter: ");
     Serial.println(EepromSettings.RXADCfilter);
-    #endif
+#endif
     return IsGoodEEPROM;
   }
 
   if (EepromSettings.ADCVBATmode > MaxVbatMode) {
     IsGoodEEPROM = false;
-    #ifdef DEBUG
+#ifdef DEBUG
     Serial.print("Error: Corrupted EEPROM value ADCVBATmode: ");
     Serial.println(EepromSettings.ADCVBATmode);
-    #endif
+#endif
     return IsGoodEEPROM;
   }
 
   if (EepromSettings.VBATcalibration > MaxVBATCalibration) {
     IsGoodEEPROM = false;
-    #ifdef DEBUG
+#ifdef DEBUG
     Serial.print("Error: Corrupted EEPROM value VBATcalibration: ");
     Serial.println(EepromSettings.VBATcalibration);
-    #endif
+#endif
     return IsGoodEEPROM;
   }
 
   for (int i = 0; i < EepromSettings.NumReceivers; i++) {
     if (EepromSettings.RXBand[i] > MaxBand) {
       IsGoodEEPROM = false;
-      #ifdef DEBUG
+#ifdef DEBUG
       Serial.print("Error: Corrupted EEPROM NODE: ");
       Serial.print(i);
       Serial.print(" value MaxBand: ");
       Serial.println(EepromSettings.RXBand[i]);
-      #endif
+#endif
       return IsGoodEEPROM;
     }
 
@@ -85,12 +86,12 @@ bool EepromSettingsStruct::SanityCheck() {
   for (int i = 0; i < EepromSettings.NumReceivers; i++) {
     if (EepromSettings.RXChannel[i] > MaxChannel) {
       IsGoodEEPROM = false;
-      #ifdef DEBUG
+#ifdef DEBUG
       Serial.print("Error: Corrupted EEPROM NODE: ");
       Serial.print(i);
       Serial.print(" value RXChannel: ");
       Serial.println(EepromSettings.RXChannel[i]);
-      #endif
+#endif
       return IsGoodEEPROM;
     }
   }
@@ -98,12 +99,12 @@ bool EepromSettingsStruct::SanityCheck() {
   for (int i = 0; i < EepromSettings.NumReceivers; i++) {
     if ((EepromSettings.RXfrequencies[i] > MaxFreq) or (EepromSettings.RXfrequencies[i] < MinFreq)) {
       IsGoodEEPROM = false;
-      #ifdef DEBUG
+#ifdef DEBUG
       Serial.print("Error: Corrupted EEPROM NODE: ");
       Serial.print(i);
       Serial.print(" value RXfrequencies: ");
       Serial.println(EepromSettings.RXfrequencies[i]);
-      #endif
+#endif
       return IsGoodEEPROM;
     }
   }
@@ -111,12 +112,12 @@ bool EepromSettingsStruct::SanityCheck() {
   for (int i = 0; i < EepromSettings.NumReceivers; i++) {
     if (EepromSettings.RSSIthresholds[i] > MaxThreshold) {
       IsGoodEEPROM = false;
-      #ifdef DEBUG
+#ifdef DEBUG
       Serial.print("Error: Corrupted EEPROM NODE: ");
       Serial.print(i);
       Serial.print(" value RSSIthresholds: ");
       Serial.println(EepromSettings.RSSIthresholds[i]);
-      #endif
+#endif
       return IsGoodEEPROM;
     }
   }
@@ -129,9 +130,9 @@ void EepromSettingsStruct::save() {
     EEPROM.put(0, *this);
     EEPROM.commit();
     eepromSaveRequired = false;
-    #ifdef DEBUG
+#ifdef DEBUG
     Serial.println("EEPROM SAVED");
-    #endif
+#endif
   }
 }
 

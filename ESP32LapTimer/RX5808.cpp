@@ -10,6 +10,7 @@
 #define PowerOnReg        0b00000000000000000001
 
 #include "RX5808.h"
+#include "debug.h"
 
 #include "HardwareConfig.h"
 #include "settings_eeprom.h"
@@ -125,16 +126,17 @@ void RXPowerUp(uint8_t NodeAddr) {
 }
 
 void SelectivePowerUp() { //powerup only the RXs that have been requested
-  for (int i = 0; i < getNumReceivers(); i++) {
+  for (int i = 0; i < getNumReceivers(); ++i) {
     RXreset(i);
     //RXstandBy(i);
     delay(50);
     RXpowerOn(i);
     //PowerUp(i);
     rxWrite(SPI_ADDRESS_POWER, DefaultPowerState, i);
-//
-//    Serial.print("Power up: ");
-//    Serial.println(i);
+#ifdef DEBUG
+    Serial.print("Power up: ");
+    Serial.println(i);
+#endif
   }
 }
 

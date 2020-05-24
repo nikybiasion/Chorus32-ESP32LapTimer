@@ -1,3 +1,4 @@
+#include "debug.h"
 #include <ESPmDNS.h>
 #include <esp_task_wdt.h>
 #include "Comms.h"
@@ -17,7 +18,6 @@
 #include "Watchdog.h"
 #include "Utils.h"
 #include "Laptime.h"
-#define DEBUG
 
 static TaskHandle_t adc_task_handle = NULL;
 
@@ -46,7 +46,7 @@ void setup() {
   oledSetup();
 #endif
 
-  Serial.begin(115200);
+  Serial.begin(9600);
 #ifdef DEBUG
   Serial.println("Booting....");
 #endif
