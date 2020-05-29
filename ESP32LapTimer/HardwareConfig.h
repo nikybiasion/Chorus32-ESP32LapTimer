@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 /// These are all the available targets
 #define BOARD_DEFAULT 1
 #define BOARD_OLD 2
@@ -14,14 +16,18 @@
 /// If your setup doesn't use an OLED remove or comment the following line
 #define OLED
 
-#define USE_BUTTONS
+//#define USE_BUTTONS
+#define USE_NORMAL_BUTTONS
 
 #define USE_SERIAL_OUTPUT
+
+// Enables the ArduinoOTA service. It allows flashing over WiFi and enters an emergency mode if a crashloop is detected.
+//#define USE_ARDUINO_OTA
 
 // BELOW ARE THE ADVANCED SETTINGS! ONLY CHANGE THEM IF YOU KNOW WHAT YOUR ARE DOING!
 
 #define EEPROM_VERSION_NUMBER 9 // Increment when eeprom struct modified
-#define MaxNumReceivers 6
+#define MAX_NUM_RECEIVERS 6
 #define VOLTAGE_UPDATE_INTERVAL_MS 1000 // interval of the battery voltage reading
 #define MIN_TUNE_TIME 30000 // value in micro seconds
 
@@ -29,7 +35,10 @@
 // 800 and 2700 are about average min max raw values
 #define RSSI_ADC_READING_MAX 2700
 #define RSSI_ADC_READING_MIN 800
+// defines the time after which the crash loop detection assumes the operation is stable
+#define CRASH_COUNT_RESET_TIME_MS 300000
 
 #include "targets/target.h" // Needs to be at the bottom
 
 void InitHardwarePins();
+extern uint8_t CS_PINS[MAX_NUM_RECEIVERS];

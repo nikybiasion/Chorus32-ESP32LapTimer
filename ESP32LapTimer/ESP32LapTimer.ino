@@ -19,6 +19,12 @@
 #include "Utils.h"
 #include "Laptime.h"
 
+#include "CrashDetection.h"
+#ifdef USE_ARDUINO_OTA
+#include <ArduinoOTA.h>
+#endif
+
+
 static TaskHandle_t adc_task_handle = NULL;
 
 void IRAM_ATTR adc_read() {
@@ -42,14 +48,27 @@ void IRAM_ATTR adc_task(void* args) {
 
 void setup() {
 
+  init_crash_detection();
+ 
+  Serial.begin(115200);
+#ifdef DEBUG
+  Serial.println("Booting....");
+#endif
+#ifdef USE_ARDUINO_OTA
+  if(is_crash_mode()) {
+    log_e("Detected crashing. Starting ArduinoOTA only!");
+    ArduinoOTA.begin();
+    return;
+  }
+#endif
+
+  print_reset_reason_cpu(0);
+  print_reset_reason_cpu(1);
+
 #ifdef OLED
   oledSetup();
 #endif
 
-  Serial.begin(9600);
-#ifdef DEBUG
-  Serial.println("Booting....");
-#endif
 #ifdef USE_BUTTONS
   newButtonSetup();
 #endif
@@ -98,6 +117,15 @@ void setup() {
 }
 
 void loop() {
+
+#ifdef USE_ARDUINO_OTA
+  ArduinoOTA.handle();
+  if(is_crash_mode()) return;
+#endif
+  if(millis() > CRASH_COUNT_RESET_TIME_MS) {
+    reset_crash_count();
+  }
+
   rssiCalibrationUpdate();
   // touchMonitor(); // A function to monitor capacitive touch values, defined in buttons.ino
 
